@@ -1,0 +1,28 @@
+<a href="/" class="back" style="text-decoration: none; color: black;">
+            <i class="fas fa-backward" style="margin-right: 5px;"></i>Quay lại
+    </a>
+<div class="mt-4">
+  <form method="POST" action="/blogs/{{Post._id}}?_method=PUT"> 
+    <div class="mb-3">
+      <label for="exampleFormControlInput1"  style="font-weight: bold; font-size:large" class="form-label">Tên bài viết</label>
+      <input
+        type="text"
+        name="title"
+        class="form-control"
+        id="exampleFormControlInput1"
+        value="{{Post.title}}"/>
+    </div>
+    
+    <div class="mb-3">
+      <label for="exampleFormControlTextarea1" style="font-weight: bold; font-size:large" class="form-label">Nội dung bài viết</label>
+      <textarea
+        name="text"
+        class="form-control"
+        id="exampleFormControlTextarea1"
+        rows="12"
+      >{{Post.text}}</textarea> 
+    </div>
+
+    <button type="submit" class="btn btn-primary">Cập nhật bài viết</button>
+  </form>
+</div>

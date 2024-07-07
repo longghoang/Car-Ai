@@ -1,0 +1,152 @@
+<style>
+    .truncate {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .small-column {
+        width: 4%;
+    }
+
+    .normal-column {
+        width: 20%;
+    }
+
+    .long-column {
+        width: 70%;
+    }
+
+    .tiny-column {
+        width: 10%;
+    }
+
+     .btn-link {
+        display: inline-block;
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 112px; 
+        background-color: rgba(233, 36, 36, 0.767);
+        text-decoration: none; 
+        color: white; 
+        transition: color 0.3s;
+    }
+
+    .btn-link:hover {
+        color: rgb(208, 255, 0);
+    }
+
+    .modal {
+        margin-top: 60px;
+    }
+    
+</style>
+
+     <a href="/" class="back" style="text-decoration: none; color: black;">
+            <i class="fas fa-backward" style="margin-right: 5px;"></i>Quay lại
+    </a>
+<div class="mt-4">
+    <h3>Bài viết của tôi</h3>
+    <a href="/stored/trash" style="text-decoration: none; color: black;">
+            <i class="fas fa-trash" style="margin-right: 5px;"></i>Thùng rác
+    </a>
+
+
+    <table class="table mt-4">
+        <thead>
+            <tr>
+                <th scope="col" class="small-column">STT</th>
+                <th scope="col" class="normal-column">Tên bài viết</th>
+                <th scope="col" class="long-column">Nội dung bài viết</th>
+                <th scope="col" class="tiny-column">Thời gian tạo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each blogsData}}
+            <tr>
+                <th scope="row">{{sum @index 1}}</th> 
+                {{!-- truyền 2 tham số là index và 1 vào helper , tương đương (index,1) => index + 1 --}}
+                <td>
+                    <div class="truncate">{{this.title}}</div>
+                </td>
+                <td>
+                    <div class="truncate">{{this.text}}</div>
+                </td>
+                 <td>
+                    <div class="truncate">{{this.created_at}}</div>
+                </td>
+
+                <td>
+                    <a href="" data-bs-toggle="modal" data-id="{{this._id}}" data-bs-target="#delete-blogs-modal">
+                         <i class="fas fa-trash-alt" style="color: red;"></i>
+                    </a>
+                </td>
+
+                {{else}}
+                <tr>
+                    <td colspan="5" class="text-center" > Bạn chưa đăng bài viết nào
+                    <a href="/blogs/create"class="btn btn-link">Đăng bài</a>
+                    </td>
+                </td>
+                </tr>
+
+
+
+
+                
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+
+{{!-- Confirm --}}
+
+<div id="delete-blogs-modal" class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cảnh báo !</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Bạn muốn xóa bài viết này chứ ?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btn-delete-blogs" class="btn btn-danger">Xóa bỏ</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form name="delete-blog-form" method="POST"></form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+var blogsId;
+var deleteForm = document.forms['delete-blog-form']
+var btnDeleteCourse = document.getElementById("btn-delete-blogs");
+
+  $(document).ready(function() {
+    $('#delete-blogs-modal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      blogsId = button.data('id');
+      
+    });
+
+    btnDeleteCourse.onclick = function () {
+        deleteForm.action = '/blogs/' + blogsId + '?_method=DELETE';
+        deleteForm.submit()
+    };
+  });
+</script>

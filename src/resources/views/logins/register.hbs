@@ -1,0 +1,37 @@
+<a href="/login" class="back" style="text-decoration: none; color: black;">
+            <i class="fas fa-backward" style="margin-right: 5px;"></i>Quay lại
+    </a>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-4">
+      <div class="border rounded-lg shadow p-4">
+        <h1 class="text-center fw-bold">Đăng ký</h1>
+        <form method="POST" action="/register/signup">
+          <div class="form-group">
+            <label for="inputEmail" style="font-weight: bold;">Email</label>
+            <input type="email" name="email" class="form-control rounded-lg mb-3" id="inputEmail" placeholder="Nhập email..." required>
+            <div class="invalid-feedback">
+              Vui lòng nhập email hợp lệ.
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputPassword" style="font-weight: bold;">Mật khẩu</label>
+            <input type="password" name="password" class="form-control rounded-lg mb-3" id="inputPassword" placeholder="Nhập mật khẩu..." required>
+            <div class="invalid-feedback">
+              Vui lòng nhập mật khẩu.
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputConfirmPassword" style="font-weight: bold;">Xác nhận mật khẩu</label>
+            <input name="verify" type="password" class="form-control rounded-lg mb-3" id="inputConfirmPassword" placeholder="Xác nhận mật khẩu..." required>
+            <div class="invalid-feedback">
+              Vui lòng xác nhận mật khẩu.
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Đăng ký</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

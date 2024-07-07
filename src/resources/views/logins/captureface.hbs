@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Face Detection</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 100px;
+        }
+        #faceFrame {
+            position: relative;
+            width: 640px;
+            height: 360px;
+            border: 2px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        video, canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        button {
+            margin-top: 20px;
+        }
+        #capturedFaces {
+            margin-top: 20px;
+            width: 80%;
+            max-width: 640px;
+            text-align: left;
+        }
+        pre {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        input[type=text] {
+            margin-top: 10px;
+            padding: 8px;
+            width: 200px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div id="faceFrame">
+        <video id="webcam" autoplay playsinline width="100%" height="100%"></video>
+        <canvas id="overlay" width="640" height="360"></canvas>
+    </div>
+    <button onclick="startWebcam()">Start Webcam</button>
+    <button onclick="stopWebcam()">Stop Webcam</button>
+    <button onclick="captureFace()">Capture Face</button>
+    <button onclick="compareFace()">Compare Face</button>
+    
+    <input type="text" id="licensePlate" placeholder="Enter license plate">
+    
+    <div id="capturedFaces">
+        <h3>Captured Faces Data</h3>
+        <pre id="faceData"></pre>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+        let stream;
+        let video;
+        let overlayCanvas;
+        let overlayContext;
+        let capturedFaces = [];
+
+        async function startWebcam() {
+            video = document.getElementById('webcam');
+            overlayCanvas = document.getElementById('overlay');
+            overlayContext = overlayCanvas.getContext('2d');
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.addEventListener('play', detectAndDrawFace); // Call detection and drawing function when video starts playing
+            } catch (error) {
+                console.error('Error accessing webcam:', error);
+            }
+        }
+
+        function stopWebcam() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        async function detectAndDrawFace() {
+            const modelPath = '/models'; 
+            // Path to face-api.js models folder
+            await faceapi.nets.tinyFaceDetector.loadFromUri(modelPath);
+            await faceapi.nets.faceLandmark68Net.loadFromUri(modelPath);
+            await faceapi.nets.faceRecognitionNet.loadFromUri(modelPath);
+
+            // Detect face and landmarks
+            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+
+            // Clear previous drawings
+            overlayContext.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+            detections.forEach(detection => {
+                const box = detection.detection.box;
+                overlayContext.beginPath();
+                overlayContext.rect(box.x, box.y, box.width, box.height);
+                overlayContext.lineWidth = 2;
+                overlayContext.strokeStyle = 'red';
+                overlayContext.stroke();
+                overlayContext.closePath();
+            });
+
+            // Draw landmarks on the overlay canvas
+            faceapi.draw.drawFaceLandmarks(overlayCanvas, detections);
+
+            // Call the function again for continuous detection and drawing
+            requestAnimationFrame(detectAndDrawFace);
+        }
+
+        async function captureFace() {
+            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
+            if (detections.length > 0) {
+                const faceData = detections.map(d => Array.from(d.descriptor));
+                const licensePlate = document.getElementById('licensePlate').value;
+
+                capturedFaces.push({ descriptors: faceData, licensePlate: licensePlate });
+                console.log('Captured face data:', capturedFaces);
+                document.getElementById('faceData').textContent = JSON.stringify(capturedFaces, null, 2);
+
+                // Gửi dữ liệu đến server để lưu trữ
+                fetch('/blogs/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ descriptors: faceData, licensePlate: licensePlate })
+                }).then(response => response.json())
+                  .then(data => console.log('Saved face data:', data))
+                  .catch(error => console.error('Error saving face data:', error));
+
+                Toastify({
+                    text: "Face captured!",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "green",
+                }).showToast();
+            } else {
+                Toastify({
+                    text: "No face detected!",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "red",
+                }).showToast();
+            }
+        }
+
+        async function compareFace() {
+            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
+            if (detections.length > 0) {
+                const faceData = detections.map(d => Array.from(d.descriptor));
+
+                // Gửi dữ liệu đến server để so sánh
+                fetch('/blogs/compare', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ descriptors: faceData })
+                }).then(response => response.json())
+                  .then(data => {
+                      console.log('Comparison result:', data);
+                      if (data.matched) {
+                          Toastify({
+                              text: "Face matched!",
+                              duration: 3000,
+                              close: true,
+                              gravity: "top",
+                              position: "right",
+                              backgroundColor: "green",
+                          }).showToast();
+                      } else {
+                          Toastify({
+                              text: "Face not matched!",
+                              duration: 3000,
+                              close: true,
+                              gravity: "top",
+                              position: "right",
+                              backgroundColor: "red",
+                          }).showToast();
+                      }
+                  })
+                  .catch(error => console.error('Error comparing face data:', error));
+            } else {
+                Toastify({
+                    text: "No face detected!",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "red",
+                }).showToast();
+            }
+        }
+
+        window.onload = startWebcam;
+        window.onbeforeunload = function() {
+            stopWebcam();
+        };
+    </script>
+</body>
+</html>

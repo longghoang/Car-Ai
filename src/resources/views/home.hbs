@@ -1,0 +1,63 @@
+
+<style> 
+  img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .img-container {
+    width: 100%; 
+    height: 100%; 
+  }
+</style>
+
+<div class='mt-4'>
+    <div class='row'>
+        <div class='col-lg-12'>
+            <div class="text-center">
+              <div class="img-container">
+               <div class="img_main">
+                <img src="https://uniquevietnam.vn/wp-content/uploads/2021/07/quang-cao-tai-bai-gui-xe-16.jpg" alt="">
+               </div>
+               </div>
+                
+                
+
+            </div>
+        </div>
+        {{#each Blog}}
+        <div class='col-sm-6 col-lg-4 mb-4 {{#unless @last}}mr-4{{/unless}}'>
+            <div class='card cars-course-item my-card'>
+                <div class='card-body'>
+                    <h5 class='card-title' style="font-weight: bold;">{{this.title}}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Thời gian tạo bài viết: {{createdDate}}</h6>
+                    <p class="card-text">{{this.text}}</p>
+                </div>
+                <div class='card-footer'> 
+                    <a href='/read?_id={{this._id}}' class='btn btn-outline-primary' style="margin-right: 10px;">Đọc bài viết</a>
+                    <a href='/blogs/{{this._id}}/edit' class='btn btn-outline-primary' style="margin-left: 10px">Sửa bài viết</a>
+                    
+                </div>
+            </div>
+        </div>
+
+        {{/each}}
+
+    </div>
+</div>
+
+<nav aria-label="Page navigation" class="mt-4">
+  <ul class="pagination justify-content-end">
+    {{#each pages}}
+      {{#if isCurrent}}
+        <li class="page-item active">
+          <span class="page-link">{{pageNumber}}</span>
+        </li>
+      {{else}}
+        <li class="page-item">
+          <a class="page-link" href="?page={{pageNumber}}">{{pageNumber}}</a>
+        </li>
+      {{/if}}
+    {{/each}}
+  </ul>
+</nav>
