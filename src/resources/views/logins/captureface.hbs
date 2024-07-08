@@ -65,10 +65,11 @@
         <video id="webcam" autoplay playsinline width="100%" height="100%"></video>
         <canvas id="overlay" width="640" height="360"></canvas>
     </div>
-    <button onclick="startWebcam()">Start Webcam</button>
-    <button onclick="stopWebcam()">Stop Webcam</button>
-    <button onclick="captureFace()">Capture Face</button>
-    <button onclick="compareFace()">Compare Face</button>
+    <button onclick="startWebcam()"><i class="fa fa-play"></i></button>
+    <button onclick="stopWebcam()"><i class="fa fa-pause"></i></button>
+    
+    <button onclick="captureFace()"><i class="fa fa-camera"></i></button>
+    <button onclick="compareFace()"><i class="fa fa-user-check"></i></button>
     
     <input type="text" id="licensePlate" placeholder="Enter license plate">
     
@@ -107,14 +108,13 @@
         }
 
         async function detectAndDrawFace() {
-            const modelPath = '/models'; 
-            // Path to face-api.js models folder
-            await faceapi.nets.tinyFaceDetector.loadFromUri(modelPath);
+            const modelPath = '/models';
+            await faceapi.nets.ssdMobilenetv1.loadFromUri(modelPath);
             await faceapi.nets.faceLandmark68Net.loadFromUri(modelPath);
             await faceapi.nets.faceRecognitionNet.loadFromUri(modelPath);
 
-            // Detect face and landmarks
-            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+            // Detect face and landmarks using SSD Mobilenetv1
+            const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors();
 
             // Clear previous drawings
             overlayContext.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
@@ -124,7 +124,7 @@
                 overlayContext.beginPath();
                 overlayContext.rect(box.x, box.y, box.width, box.height);
                 overlayContext.lineWidth = 2;
-                overlayContext.strokeStyle = 'red';
+                overlayContext.strokeStyle = 'blue';
                 overlayContext.stroke();
                 overlayContext.closePath();
             });
@@ -137,7 +137,7 @@
         }
 
         async function captureFace() {
-            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
+            const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors();
             if (detections.length > 0) {
                 const faceData = detections.map(d => Array.from(d.descriptor));
                 const licensePlate = document.getElementById('licensePlate').value;
@@ -178,7 +178,7 @@
         }
 
         async function compareFace() {
-            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
+            const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors();
             if (detections.length > 0) {
                 const faceData = detections.map(d => Array.from(d.descriptor));
 
@@ -192,27 +192,44 @@
                 }).then(response => response.json())
                   .then(data => {
                       console.log('Comparison result:', data);
-                      if (data.matched) {
+
+                      if (data.results.length === 0) {
+                          // Không tìm thấy khuôn mặt khớp trong cơ sở dữ liệu
                           Toastify({
-                              text: "Face matched!",
+                              text: "Face not recognized!",
                               duration: 3000,
                               close: true,
                               gravity: "top",
                               position: "right",
-                              backgroundColor: "green",
+                              backgroundColor: "orange",
                           }).showToast();
                       } else {
-                          Toastify({
-                              text: "Face not matched!",
-                              duration: 3000,
-                              close: true,
-                              gravity: "top",
-                              position: "right",
-                              backgroundColor: "red",
-                          }).showToast();
+                          // Tìm thấy khuôn mặt khớp, kiểm tra khoảng cách
+                          const matched = data.results.some(result => result.distance < 0.4);
+
+                          if (matched) {
+                              Toastify({
+                                  text: "Face matched!",
+                                  duration: 3000,
+                                  close: true,
+                                  gravity: "top",
+                                  position: "right",
+                                  backgroundColor: "green",
+                              }).showToast();
+                          } else {
+                              Toastify({
+                                  text: "Face not matched!",
+                                  duration: 3000,
+                                  close: true,
+                                  gravity: "top",
+                                  position: "right",
+                                  backgroundColor: "red",
+                              }).showToast();
+                          }
                       }
                   })
                   .catch(error => console.error('Error comparing face data:', error));
+
             } else {
                 Toastify({
                     text: "No face detected!",

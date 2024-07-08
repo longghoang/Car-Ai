@@ -99,9 +99,12 @@
 
 const faceSchema = require('../models-db/face');
 const NodeWebcam = require('node-webcam');
-const bcrypt = require('bcrypt');
 const path = require('path'); // Import module 'path'
 const fs = require('fs');
+const faceapi = require('face-api.js');
+const { Canvas, Image, ImageData } = require('canvas');
+faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
+
 
 class RegisterController {
 //ui
@@ -122,7 +125,6 @@ async saveFaceData(req, res, next) {
         if (!descriptors || descriptors.length === 0) {
             return res.status(400).json({ error: 'No face data provided.' });
         }
-
         const newFace = new faceSchema({ descriptors });
         await newFace.save();
         res.status(200).json({ message: 'Face data saved successfully!' });
@@ -132,36 +134,43 @@ async saveFaceData(req, res, next) {
 }
 
 /// so sanh
-async compareData(req, res, next) {
+async  compareData(req, res, next) {
     try {
         const { descriptors } = req.body;
 
-        // Kiểm tra và chuẩn bị dữ liệu mô tả khuôn mặt
         if (!descriptors || descriptors.length === 0) {
             return res.status(400).json({ error: 'No face data provided.' });
         }
 
-        // Lấy tất cả dữ liệu khuôn mặt từ cơ sở dữ liệu
-        const allFaces = await Face.find();
+        const allFaces = await faceSchema.find();
 
-        // Chuẩn bị các kết quả so sánh
+
         const results = [];
 
-        // Duyệt qua từng mẫu khuôn mặt trong cơ sở dữ liệu và so sánh với dữ liệu từ client
         for (let storedFace of allFaces) {
-            const storedDescriptors = storedFace.descriptors;
+            const storedDescriptors = storedFace.descriptors.map(descriptor => new Float32Array(descriptor));
 
-            // Đưa dữ liệu mô tả vào định dạng faceapi
-            const faceMatcher = new faceapi.FaceMatcher(faceapi.LabeledFaceDescriptors.fromJSON(storedDescriptors));
+            const labeledDescriptors = new faceapi.LabeledFaceDescriptors(storedFace._id.toString(), storedDescriptors);
 
-            // So sánh
-            const match = faceMatcher.findBestMatch(faceapi.LabeledFaceDescriptors.fromJSON(descriptors));
+            const faceMatcher = new faceapi.FaceMatcher([labeledDescriptors]);
+
+           
+            let bestMatch = null;
+
+            for (let descriptor of descriptors) {
+                const queryDescriptor = new Float32Array(descriptor);
+                const match = faceMatcher.findBestMatch(queryDescriptor);
+
+                if (!bestMatch || match.distance < bestMatch.distance) {
+                    bestMatch = match;
+                }
+            }
 
             // Lưu kết quả vào mảng results
             results.push({
-                match: match.label, // Nhãn của khuôn mặt khớp
-                distance: match.distance, // Khoảng cách so với mẫu khớp
-                licensePlate: storedFace.licensePlate // Giả sử bạn lưu biển số xe trong cơ sở dữ liệu
+                match: bestMatch.label, // Nhãn của khuôn mặt khớp
+                distance: bestMatch.distance, 
+                licensePlate: storedFace.licensePlate 
             });
         }
 
@@ -172,8 +181,9 @@ async compareData(req, res, next) {
     }
 }
 
-
 }
+
+
 
 module.exports = new RegisterController();
 

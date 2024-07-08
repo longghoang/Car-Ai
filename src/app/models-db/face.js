@@ -6,6 +6,10 @@ const faceSchema = new Schema({
         type: [[Number]],
         required: true
     },
+    // licensePlate: {
+    //     type: [[Number]],
+    //     required: true
+    // },
     capturedAt: {
         type: Date,
         default: Date.now
