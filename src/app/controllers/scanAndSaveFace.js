@@ -111,6 +111,8 @@ class RegisterController {
 
 async captureface(req, res, next) {
     try {
+
+        
         res.render('logins/captureface')
         
     } catch (error) {
@@ -125,7 +127,9 @@ async saveFaceData(req, res, next) {
         if (!descriptors || descriptors.length === 0) {
             return res.status(400).json({ error: 'No face data provided.' });
         }
-        const newFace = new faceSchema({ descriptors });
+
+        
+        const newFace = new faceSchema({ descriptors, scannedSuccessfully: true });
         await newFace.save();
         res.status(200).json({ message: 'Face data saved successfully!' });
     } catch (error) {
@@ -134,7 +138,7 @@ async saveFaceData(req, res, next) {
 }
 
 /// so sanh
-async  compareData(req, res, next) {
+async compareData(req, res, next) {
     try {
         const { descriptors } = req.body;
 
@@ -142,8 +146,8 @@ async  compareData(req, res, next) {
             return res.status(400).json({ error: 'No face data provided.' });
         }
 
-        const allFaces = await faceSchema.find();
-
+        // Lấy danh sách các mặt đã quét thành công (scannedSuccessfully: true)
+        const allFaces = await faceSchema.find({ scannedSuccessfully: true });
 
         const results = [];
 
@@ -154,7 +158,6 @@ async  compareData(req, res, next) {
 
             const faceMatcher = new faceapi.FaceMatcher([labeledDescriptors]);
 
-           
             let bestMatch = null;
 
             for (let descriptor of descriptors) {
@@ -168,10 +171,15 @@ async  compareData(req, res, next) {
 
             // Lưu kết quả vào mảng results
             results.push({
-                match: bestMatch.label, // Nhãn của khuôn mặt khớp
-                distance: bestMatch.distance, 
-                licensePlate: storedFace.licensePlate 
+                match: bestMatch.label,
+                distance: bestMatch.distance,
+                licensePlate: storedFace.licensePlate
             });
+
+            if (bestMatch.distance < 0.4) {
+                storedFace.scannedSuccessfully = false; 
+                await storedFace.save();
+            }
         }
 
         // Trả về kết quả
@@ -180,6 +188,7 @@ async  compareData(req, res, next) {
         next(error);
     }
 }
+
 
 }
 

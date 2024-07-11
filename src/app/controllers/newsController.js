@@ -1,47 +1,156 @@
+const TicketRegistrationSchema = require('../models-db/ticket');
+const RegisterSchema = require('../models-db/register');
 const BlogPost = require('../models-db/blog');
-const RegisterSchema = require('../models-db/register')
+const faceSchema = require('../models-db/face')
 const moment = require('moment');
+const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+
+
 
 class NewsController {
+
+  async help(req, res, next) {
+    try {
+      const faqs = [
+        { question: 'Làm thế nào để đăng ký hệ thống quản lý gửi xe?', answer: 'Để đăng ký, nhấn vào nút "Đăng ký" trên trang chủ và điền thông tin của bạn.' },
+        { question: 'Làm thế nào để thêm xe mới?', answer: 'Đi tới phần "Xe cộ", và nhấn vào "Thêm xe". Điền các thông tin cần thiết và lưu lại.' },
+        { question: 'Làm thế nào để cập nhật thông tin cá nhân?', answer: 'Nhấn vào biểu tượng hồ sơ của bạn và chọn "Chỉnh sửa hồ sơ". Thực hiện các thay đổi cần thiết và lưu lại.' },
+        { question: 'Làm thế nào để báo cáo sự cố?', answer: 'Đi tới phần "Hỗ trợ" và nhấn vào "Báo cáo sự cố". Điền thông tin chi tiết và gửi.' },
+        { question: 'Chấp nhận các phương thức thanh toán nào?', answer: 'Chúng tôi chấp nhận thẻ tín dụng, thẻ ghi nợ và ngân hàng trực tuyến.' },
+        { question: 'Làm thế nào để liên hệ hỗ trợ khách hàng?', answer: 'Bạn có thể liên hệ hỗ trợ khách hàng bằng cách gọi một trong các số điện thoại được liệt kê trong phần liên hệ.' }
+    ];
+    
+
+        const contacts = [
+            { phone: '0865-055-902' },
+            { phone: '0358-666-123' },
+            { phone: '0123-456-789' }
+        ];
+
+        res.render('blogs/help', { faqs, contacts });
+    } catch (error) {
+        next(error);
+    }
+}
+
+////
+
+async ticket(req, res, next) {
+  try {
+    
+      res.render('logins/ticket');
+  } catch (error) {
+      next(error);
+  }
+}
+
+async registerTicket(req, res, next) {
+  try {
+   
+      const jwtUser = req.signedCookies.userId; 
+
+      console.log("dang ky", jwtUser)
+
+  
+      const homeDelivery = req.body.homeDelivery === 'on';
+
+
+      const data = {
+          ...req.body,
+          homeDelivery,
+          jwtUser,
+      };
+
+      const newTicket = new TicketRegistrationSchema(data);
+      await newTicket.save();
+
+
+      res.redirect('/');
+  } catch (error) {
+      next(error);
+  }
+}
+
+
+
+//tiketManager  
+
+
+async tiketManager(req, res, next) {
+  try {
+    const jwtUser = req.signedCookies.userId; 
+
+    console.log(jwtUser)
+
+    // Lấy tất cả các vé từ cơ sở dữ liệu
+    const tickets = await TicketRegistrationSchema.find({ jwtUser });
+
+     console.log(tickets)
+
+    
+
+    // Lọc và chuyển đổi dữ liệu
+    const formattedTickets = tickets.map(ticket => ({
+      cardType: ticket.cardType,
+      fullName: ticket.fullName,
+      birthDate: moment(ticket.birthDate).format('DD/MM/YY'), 
+      address: ticket.address,
+      phone: ticket.phone,
+      registrationDate: moment(ticket.registrationDate).format('DD/MM/YY'), 
+      homeDelivery: ticket.homeDelivery ? 'có' : 'không',
+      receiveLocation: ticket.receiveLocation,
+    }));
+
+
+    const hasTickets = formattedTickets.length > 0;
+
+
+    res.render('blogs/ticketmanager', { tickets: formattedTickets, hasTickets  });
+  } catch (error) {
+    next(error);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
   async index(req, res, next) {
     try {
-      const email = req.session.email || '';
-      const pageNumber = req.query.page || 1; // Trang hiện tại, mặc định là 1
-      const pageSize = 6; // Số lượng bài viết trên mỗi trang
-  
-      const userId = req.signedCookies.userId;
-  
-      // Truy vấn số lượng bài viết của tài khoản đang đăng nhập
-      const totalPosts = await BlogPost.countDocuments({ userId });
-  
-      const totalPages = Math.ceil(totalPosts / pageSize);
-  
-      const blogPosts = await BlogPost.find({ userId })
-        .skip((pageNumber - 1) * pageSize)
-        .limit(pageSize)
-        .exec();
-  
-      const Blog = blogPosts.map(blogPost => {
-        const createdDate = moment(blogPost.created_at).format('HH:mm:ss, DD/MM/YYYY');
-        return { ...blogPost.toObject(), createdDate };
-      });
-  
-      // Tạo mảng pages
-      const pages = [];
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push({
-          pageNumber: i,
-          isCurrent: i === pageNumber,
-        });
-      }
-  
-      res.render('home', {
-        Blog: Blog,
-        pages: pages,
-        layout: 'main',
-        email: email
-      });
+      res.render('home');
     } catch (error) {
       next(error);
     }
@@ -49,50 +158,7 @@ class NewsController {
   
 
 ///
-  async read(req, res, next) {
-    try {
-      const postId = req.query._id;
 
-      const readPost = await BlogPost.findOne({ _id: postId });
-
-
-      if (!readPost) {
-        // Nếu không tìm thấy bài viết
-        return res.status(404).json({ message: 'Bài viết không tồn tại' });
-      }
-
-      const readPostObject  = readPost.toObject()
-
-      res.render('blogs/read', { readPost: readPostObject });
-    } catch (error) {
-      next(error);
-    }
-}
-///
-
-async search(req, res, next) {
-  try {
-    // const searchQuery = decodeURIComponent(req.query.search)
-
-    const sessionID = req.cookies.jwt 
-    return res.json(`"sID được gửi cho Hacker: " ${sessionID}`)
-    
-
-    const searchResult = await BlogPost.findOne({ title: { $regex: new RegExp(searchQuery, 'i') } }) //không phân biệt chữ hoa 
-
-    
-    if(!searchResult) {
-      return res.status(404).json({ message: "Không tìm thấy bài viết" })
-    }
-    
-    const resultToObject = searchResult.toObject()
-    res.render('blogs/search_result', {
-      resultSearch: resultToObject
-    })
-  }catch(error) {
-    next(error)
-  }
-}
 
 //
 async account(req, res, next) {
@@ -108,11 +174,14 @@ async account(req, res, next) {
 
       const nameEmail = userEmail.email
 
-      const totalPosts = await BlogPost.countDocuments({ userId });
+      const totalPosts = await faceSchema.countDocuments({ scannedSuccessfully: true });
+      console.log(totalPosts)
 
-      if(!totalPosts) {
-        var post = ('Bạn chưa đăng bài viết nào !')
-      }
+      let post;
+    if (totalPosts === 0) {
+      post = 'Chưa có xe nào được gửi';
+    }
+
 
 
       res.render('blogs/account', {

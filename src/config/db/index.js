@@ -7,9 +7,9 @@ async function conect() {
             useNewUrlParser: true,
             useUnifiedTopology: true
         })
-        console.log('Conect success')
+        console.log('Connect success')
     } catch(error) {
-        console.log('Conect fail')
+        console.log('Connect fail')
     }
 }
 

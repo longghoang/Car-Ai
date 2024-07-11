@@ -15,6 +15,7 @@ const BlogsController = require('../app/controllers/scanAndSaveFace')
 router.get('/uicapture', BlogsController.captureface);
 router.post('/create', BlogsController.saveFaceData);
 router.post('/compare', BlogsController.compareData);
+// router.post('/deleteUser', BlogsController.deleteUser);
 // router.post('/store',sessionMiddleware, BlogsController.store);
 
 

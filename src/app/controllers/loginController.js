@@ -24,16 +24,6 @@ class LoginController {
       try {
         const { email, password, 'g-recaptcha-response': recaptchaResponse } = req.body;
         
-
-    
-    // const verifyRecaptchaUrl = `https://www.google.com/recaptcha/api/siteverify?secret=6Lf6UOsnAAAAAMNWvc_toOltyObjZdMqycqMcsz-&response=${recaptchaResponse}`;
-    // const recaptchaResult = await fetch(verifyRecaptchaUrl, { method: 'POST' });
-    // const recaptchaData = await recaptchaResult.json(); 
-
-    // if (!recaptchaData.success) {
-    //   return res.status(401).json({ message: 'Vui lòng xác minh reCAPTCHA' });
-    // }
-    
         if (!email || !password) {
           return res.status(400).json({ message: "VUI LÒNG ĐIỀN EMAIL VÀ MẬT KHẨU" });
         }
@@ -48,27 +38,11 @@ class LoginController {
           return res.status(401).json({ message: "Tài khoản đã bị khóa vì thử đăng nhập sai quá nhiều lần. Vui lòng liên hệ quản trị viên Nguyễn Hoàng Long để được hỗ trợ" });
         }
     
-        // const passwordGuesses = [ 'Long1234@','123456', 'Florentino123', 'long@123456', 'nguyenlong@123','Long@12','password'];
-        // let isPasswordValid = false;
-    
-        
-        // for (const passwordGuess of passwordGuesses) {
-        //   const isGuessValid = await bcrypt.compare(passwordGuess, user.password);
-        //   if (isGuessValid) {
-        //     isPasswordValid = true;
-        //     break; 
-        //   }
-        // }
-
          const isPasswordValid = await bcrypt.compare(password, user.password);
     
         if (!isPasswordValid) {
           user.loginAttempts++;
           await user.save();
-          // if (user.loginAttempts >= 3) {
-          //   return res.status(401).json({ message: "Tài khoản đã bị khóa vì thử đăng nhập sai quá nhiều lần. Vui lòng liên hệ quản trị viên Nguyễn Hoàng Long để được hỗ trợ" });
-          //  } else {
-          // res.redirect("back");
           return res.status(401).json( {message: " MẬT KHẨU KHÔNG CHÍNH XÁC "} );
           // }
         }
