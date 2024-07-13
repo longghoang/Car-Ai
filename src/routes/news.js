@@ -11,15 +11,15 @@ const sessionMiddleware  = require('../app/middleware/sessionMiddleware');
 
 
 router.get('/help', newsController.help);
-router.get('/ticket', newsController.ticket);
-router.get('/ticketmanager', newsController.tiketManager  );
+router.get('/ticket',sessionMiddleware, newsController.ticket);
+router.get('/ticketmanager',sessionMiddleware, newsController.tiketManager  );
 router.get('/register', registerController.register);
 router.get('/login', loginController.login);
 router.get('/logout', logoutController.logout);
 router.post('/login/signin', loginController.signin);
 router.get('/', newsController.index);
-router.get('/account', newsController.account);
-// router.get('/:slug', newsController.read);
+router.get('/account',sessionMiddleware, newsController.account);
+
 
 
 module.exports = router;

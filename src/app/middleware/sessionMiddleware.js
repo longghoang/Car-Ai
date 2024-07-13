@@ -1,8 +1,8 @@
 module.exports = function sessionMiddleware(req, res, next) {
-  if (req.session.user) {
+  if (req.cookies.jwt) {
        next();
 } else {
-    res.json('Bạn chưa đăng nhập')
+  return res.render('blogs/notifi');
 }
 
 };

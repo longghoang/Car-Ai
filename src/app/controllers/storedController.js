@@ -48,6 +48,34 @@ class storedController {
             next(error);
         }
     }
+
+
+
+    //pank
+
+    async park(req, res, next) {
+        try {
+            // Tìm tất cả các spots đã được quét thành công
+            const occupiedSpots = await faceSchema.find({ scannedSuccessfully: true });
+    
+            // Đếm số lượng bản ghi đã tìm thấy
+            const numberOfOccupiedSpots = occupiedSpots.length;
+            console.log(`Số lượng xe đã được quét thành công là: ${numberOfOccupiedSpots}`);
+    
+            // Chuẩn bị mảng spots để hiển thị trên giao diện
+            const spots = Array.from({ length: 100 }, (_, index) => ({
+                occupiedClass: index < numberOfOccupiedSpots ? 'occupied' : 'vacant'
+            }));
+            console.log(spots);
+    
+            res.render('blogs/park', { spots });
+        } catch (error) {
+            next(error);
+        }
+    }
+    
+    
+
     
     
     

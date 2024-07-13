@@ -77,7 +77,7 @@ class RegisterController {
         try {
 
           function generateRandomNumber() {
-            const randomNumber = Math.floor(Math.random() * 9000) + 1000; // Tạo số ngẫu nhiên từ 1000 đến 9999
+            const randomNumber = Math.floor(Math.random() * 9000) + 1000; 
             return randomNumber.toString();
           }
           
@@ -109,16 +109,16 @@ class RegisterController {
             text: `Mã xác nhận của bạn là: ${verificationCode}`, 
           });
 
-          const expiryDate = new Date(Date.now() + 60 * 1000);
-          const expiryDate2 = new Date(Date.now() + 360 * 1000); 
+          const expiryDate = new Date(Date.now() + 60 * 10000);
+          const expiryDate2 = new Date(Date.now() + 360 * 10000); 
 
+          
           // Đặt cookie 
           res.cookie('codeVerify', verificationCode, { expires: expiryDate, signed: true });
           res.cookie('emailID', email, { expires: expiryDate2, signed: true });
-        
-          return res.json({
-            message: `Send mail complete for ${emailDb}`
-          });
+          
+          res.json('send code complete')
+
         } catch (error) {
           console.error(error);
           return res.status(500).json({ message: 'Failed to send code', error: error.message });
@@ -193,6 +193,50 @@ class RegisterController {
       next(err)
     }
   }
+
+
+
+
+
+
+
+
+
+/////////////
+
+async manager(req, res, next) {
+  try{
+    res.render('logins/managerregister')
+  } catch(err){
+    next(err)
+  }
+}
+
+
+//// approve
+
+async approve(req, res, next) {
+  try{
+   res.json("ok")
+
+  } catch(err) {
+    next(err)
+  }
+} 
+
+
+
+
+
+
 }
 
 module.exports = new RegisterController()
+
+
+
+
+
+/////////
+
+

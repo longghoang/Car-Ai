@@ -10,6 +10,7 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 
+
 // Kết nối DB
 const db = require('./config/db');
 db.conect();
@@ -42,6 +43,9 @@ app.engine(
         }
     })
 );
+
+
+
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'resources', 'views'));
 

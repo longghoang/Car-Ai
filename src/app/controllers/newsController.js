@@ -169,7 +169,7 @@ async account(req, res, next) {
 
 
       if(!userEmail) {
-        return res.status(404).json({message: "Email not found"})
+        return res.status(404).json({message: "Bạn chưa đăng nhập"})
       }
 
       const nameEmail = userEmail.email

@@ -14,6 +14,8 @@ router.post('/registerticket', newsController.registerTicket);
 router.get('/account/changepassword', RegisterController.viewchange);
 router.get('/sendemail', RegisterController.sendemail);
 router.get('/sendemail/nextpass', RegisterController.nextpass);
+router.get('/manager', RegisterController.manager);
+router.post('/manager/approve', RegisterController.approve);
 
 
 

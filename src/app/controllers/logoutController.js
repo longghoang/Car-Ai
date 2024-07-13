@@ -7,7 +7,7 @@ class LogoutController {
       }
       res.clearCookie("jwt");
       res.clearCookie('userId', { signed: true });
-      res.redirect('/login'); 
+      res.redirect('/'); 
     });
   }
 }
