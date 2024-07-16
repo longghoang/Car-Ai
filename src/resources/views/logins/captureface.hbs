@@ -17,8 +17,8 @@
         }
         #faceFrame {
             position: relative;
-            width: 640px;
-            height: 360px;
+            width: 563px;
+            height: 346px;
             border: 2px solid black;
             display: flex;
             justify-content: center;
@@ -35,8 +35,9 @@
 
         canvas {
             position: absolute;
-            top: 0;
-            left: 0;
+            top:-81px;
+            left: -8px;
+            margin-top: 65px;
         }
         button {
             margin-top: 20px;
@@ -56,8 +57,8 @@
     </div>
     <button onclick="startWebcam()"><i class="fa fa-play"></i></button>
     <button onclick="stopWebcam()"><i class="fa fa-pause"></i></button>
-    <button onclick="captureFace()"><i class="fa fa-camera"></i></button>
-    <button onclick="compareFace()"><i class="fa fa-user-check"></i></button>
+    <button onclick="captureFace()"><i class="fa fa-camera"></i> Capture</button>
+    <button onclick="compareFace()"><i class="fa fa-user-check"></i> So sánh</button>
     <input type="text" id="licensePlate" placeholder="Enter license plate">
     
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>

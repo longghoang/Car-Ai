@@ -5,6 +5,7 @@ const faceSchema = require('../models-db/face')
 const moment = require('moment');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const { render } = require('node-sass');
 
 
 
@@ -195,6 +196,31 @@ async account(req, res, next) {
     next(error)
   }
 }
+
+
+
+
+
+
+
+// wellcome
+
+async wellcome(req, res, next) {
+  try {
+
+    const wellcome = req.cookies.jwt
+
+    if(!wellcome) {
+      render('blogs/bye')
+    } else {
+      next()
+    }
+
+  } catch (error) {
+    next(error);
+  }
+}
+
 
 
 

@@ -52,7 +52,7 @@ class RegisterController {
     
         await register.save();
     
-        res.redirect('/login?message=Đăng+ký+thành+công');
+        res.redirect('/login?message=' + encodeURIComponent('Đăng ký thành công'));
       } catch (error) {
         next(error);
       }
@@ -238,5 +238,7 @@ module.exports = new RegisterController()
 
 
 /////////
+
+
 
 

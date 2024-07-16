@@ -123,13 +123,16 @@ async captureface(req, res, next) {
 
 async saveFaceData(req, res, next) {
     try {
-        const { descriptors } = req.body;
+        const { descriptors, licensePlate } = req.body;
         if (!descriptors || descriptors.length === 0) {
             return res.status(400).json({ error: 'No face data provided.' });
         }
 
         
-        const newFace = new faceSchema({ descriptors, scannedSuccessfully: true });
+        
+        const newFace = new faceSchema({ descriptors, licensePlate, scannedSuccessfully: true });
+        
+
         await newFace.save();
         res.status(200).json({ message: 'Face data saved successfully!' });
     } catch (error) {
@@ -140,7 +143,7 @@ async saveFaceData(req, res, next) {
 /// so sanh
 async compareData(req, res, next) {
     try {
-        const { descriptors } = req.body;
+        const { descriptors, licensePlate } = req.body;
 
         if (!descriptors || descriptors.length === 0) {
             return res.status(400).json({ error: 'No face data provided.' });

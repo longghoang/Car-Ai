@@ -6,10 +6,10 @@ const faceSchema = new Schema({
         type: [[Number]],
         required: true
     },
-    // licensePlate: {
-    //     type: [[Number]],
-    //     required: true
-    // },
+    licensePlate: {
+        type: String,
+        required: true
+    },
 
     scannedSuccessfully: {
         type: Boolean,
