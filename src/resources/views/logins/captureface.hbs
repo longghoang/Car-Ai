@@ -126,6 +126,19 @@
 
                 console.log('Captured face data:', { descriptors: faceData, licensePlate: licensePlate });
 
+                if(!licensePlate) {
+                    Toastify({
+                    text: "Chưa nhập biển số",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "red",
+                }).showToast();
+                return;
+
+                }
+
                 // Gửi dữ liệu đến server để lưu trữ
                 fetch('/blogs/create', {
                     method: 'POST',
@@ -161,6 +174,7 @@
             const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors();
             if (detections.length > 0) {
                 const faceData = detections.map(d => Array.from(d.descriptor));
+                const licensePlate = document.getElementById('licensePlate').value;
 
                 // Gửi dữ liệu đến server để so sánh
                 fetch('/blogs/compare', {
@@ -168,7 +182,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ descriptors: faceData })
+                    body: JSON.stringify({ descriptors: faceData, licensePlate: licensePlate })
                 }).then(response => response.json())
                   .then(data => {
                       console.log('Comparison result:', data);
@@ -185,11 +199,11 @@
                           }).showToast();
                       } else {
                           // Tìm thấy khuôn mặt khớp, kiểm tra khoảng cách
-                          const matched = data.results.some(result => result.distance < 0.4);
+                         const matched = data.results.some(r => r.distance < 0.4 && r.licensePlate === licensePlate);
 
                           if (matched) {
                               Toastify({
-                                  text: "Khuôn mặt khớp!",
+                                  text: "Khuôn mặt và biển số đã khớp , đã có thể lấy xe!",
                                   duration: 3000,
                                   close: true,
                                   gravity: "top",
@@ -198,7 +212,7 @@
                               }).showToast();
                           } else {
                               Toastify({
-                                  text: "Khuôn mặt không khớp!",
+                                  text: "Khuôn mặt hoặc biển số không khớp!",
                                   duration: 3000,
                                   close: true,
                                   gravity: "top",

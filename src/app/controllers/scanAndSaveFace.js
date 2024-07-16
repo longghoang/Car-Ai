@@ -145,8 +145,14 @@ async compareData(req, res, next) {
     try {
         const { descriptors, licensePlate } = req.body;
 
+        console.log(licensePlate)
+
         if (!descriptors || descriptors.length === 0) {
             return res.status(400).json({ error: 'No face data provided.' });
+        }
+
+        if (!licensePlate) {
+            return res.status(400).json({ error: 'No license plate provided.' });
         }
 
         // Lấy danh sách các mặt đã quét thành công (scannedSuccessfully: true)
@@ -179,7 +185,8 @@ async compareData(req, res, next) {
                 licensePlate: storedFace.licensePlate
             });
 
-            if (bestMatch.distance < 0.4) {
+            // Nếu khoảng cách nhỏ hơn ngưỡng (ví dụ: 0.4), cập nhật trạng thái scannedSuccessfully
+            if (bestMatch.distance < 0.4 && storedFace.licensePlate === licensePlate) {
                 storedFace.scannedSuccessfully = false; 
                 await storedFace.save();
             }
