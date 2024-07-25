@@ -105,7 +105,7 @@
             <div class="col-md-4">
                 <div class="border rounded-lg shadow p-4">
                     <h1 class="text-center fw-bold">Đăng ký</h1>
-                    <form method="POST" action="/register/signup">
+                    <form id="registerForm" method="POST" action="/register/signup">
                         <div class="form-group">
                             <label for="inputEmail" class="fw-bold">Email</label>
                             <input type="email" name="email" class="form-control rounded-lg mb-3" id="inputEmail" placeholder="Nhập email..." required>
@@ -116,14 +116,14 @@
                         <div class="form-group">
                             <label for="inputPassword" class="fw-bold">Mật khẩu</label>
                             <input type="password" name="password" class="form-control rounded-lg mb-3" id="inputPassword" placeholder="Nhập mật khẩu..." required>
-                            <div class="invalid-feedback">
+                            <div class="invalid-feedback" id="passwordError">
                                 Vui lòng nhập mật khẩu.
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="inputConfirmPassword" class="fw-bold">Xác nhận mật khẩu</label>
                             <input name="verify" type="password" class="form-control rounded-lg mb-3" id="inputConfirmPassword" placeholder="Xác nhận mật khẩu..." required>
-                            <div class="invalid-feedback">
+                            <div class="invalid-feedback" id="confirmPasswordError">
                                 Vui lòng xác nhận mật khẩu.
                             </div>
                         </div>
@@ -136,5 +136,45 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            const password = document.getElementById('inputPassword').value;
+            const confirmPassword = document.getElementById('inputConfirmPassword').value;
+            const passwordError = document.getElementById('passwordError');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+
+            // Điều kiện kiểm tra mật khẩu
+            const passwordConditions = [
+                { regex: /.{8,}/, message: "Mật khẩu phải chứa ít nhất 8 ký tự." },
+                { regex: /[A-Z]/, message: "Mật khẩu phải chứa ít nhất một chữ hoa." },
+                { regex: /[!@#$%^&*(),.?":{}|<>]/, message: "Mật khẩu phải chứa ít nhất một ký tự đặc biệt." }
+            ];
+
+            let passwordValid = true;
+            for (const condition of passwordConditions) {
+                if (!condition.regex.test(password)) {
+                    passwordError.textContent = condition.message;
+                    passwordError.style.display = 'block';
+                    passwordValid = false;
+                    event.preventDefault();
+                    break;
+                }
+            }
+
+            if (passwordValid) {
+                passwordError.style.display = 'none';
+            }
+
+            // Kiểm tra xác nhận mật khẩu
+            if (password !== confirmPassword) {
+                confirmPasswordError.textContent = "Mật khẩu xác nhận không khớp.";
+                confirmPasswordError.style.display = 'block';
+                event.preventDefault();
+            } else {
+                confirmPasswordError.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>

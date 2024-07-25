@@ -24,9 +24,9 @@ class LoginController {
       try {
         const { email, password, 'g-recaptcha-response': recaptchaResponse } = req.body;
         
-        if (!email || !password) {
-          return res.status(400).json({ message: "VUI LÒNG ĐIỀN EMAIL VÀ MẬT KHẨU" });
-        }
+        // if (!email || !password) {
+        //   return res.status(400).json({ message: "VUI LÒNG ĐIỀN EMAIL VÀ MẬT KHẨU" });
+        // }
     
         const user = await RegisterSchema.findOne({ email });
     

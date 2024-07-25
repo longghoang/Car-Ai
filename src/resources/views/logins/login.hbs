@@ -78,11 +78,18 @@
         .alert {
             color: red;
         }
+
+        .invalid-feedback {
+            color: red;
+            display: none;
+        }
+
+        .form-control:invalid + .invalid-feedback {
+            display: block;
+        }
     </style>
 </head>
 <body>
-
-
 
     <div class="container">
         <div class="row justify-content-center">
@@ -93,10 +100,16 @@
                         <div class="form-group">
                             <label for="inputEmail" class="fw-bold">Email</label>
                             <input type="email" name="email" class="form-control mb-3" id="inputEmail" placeholder="Nhập email..." required>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập email hợp lệ.
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="inputPassword" class="fw-bold">Mật khẩu</label>
                             <input type="password" name="password" class="form-control mb-3" id="inputPassword" placeholder="Nhập mật khẩu..." required>
+                            <div class="invalid-feedback" id="passwordError">
+                                Vui lòng nhập mật khẩu.
+                            </div>
                         </div>
 
                         <div class="g-recaptcha" data-sitekey="6Lf6UOsnAAAAAH2AIShZdJNdYcgBkjxBQpH74Vb7"></div>
@@ -115,5 +128,28 @@
     </div>
 
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            const password = document.getElementById('inputPassword').value;
+            const passwordError = document.getElementById('passwordError');
+
+           
+
+            let passwordValid = true;
+            for (const condition of passwordConditions) {
+                if (!condition.regex.test(password)) {
+                    passwordError.textContent = condition.message;
+                    passwordError.style.display = 'block';
+                    passwordValid = false;
+                    event.preventDefault();
+                    break;
+                }
+            }
+
+            if (passwordValid) {
+                passwordError.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
