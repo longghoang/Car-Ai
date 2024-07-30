@@ -7,7 +7,7 @@ const sessionMiddleware = require('../app/middleware/sessionMiddleware');
 
 
 
-router.get('/blogs',storedController.stored);
+router.get('/revenue',storedController.revenue);
 router.get('/park',storedController.park);
 
 

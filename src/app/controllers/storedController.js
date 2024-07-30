@@ -2,7 +2,7 @@ const moment = require('moment');
 const faceSchema = require('../models-db/face') 
 
 class storedController {
-    async stored(req, res, next) {
+    async revenue(req, res, next) {
         try {
             const startDate = new Date('2024-07-09');
             const endDate = new Date();

@@ -11,7 +11,7 @@ const storeRouter = require('./stored');
 
 function route(app) {
     app.use('/', siteRouter);
-    app.use('/blogs', blogsRouter);
+    app.use('/scan', blogsRouter);
     app.use('/register', registerRouter);
     app.use('/stored', storeRouter);
 }

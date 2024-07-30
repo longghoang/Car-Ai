@@ -9,21 +9,33 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
+            background-color: #f0f0f0;
         }
         .container {
             display: flex;
+            justify-content: center;
+            align-items: flex-start;
             margin-top: 50px;
         }
         .form-container, .note-container {
-            border: 1px solid red;
+            background-color: white;
             padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
         }
         .form-container {
             flex: 3;
+            margin-right: 20px;
         }
         .note-container {
             flex: 2;
-            margin-left: 20px;
+        }
+        h1, h2 {
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
         }
         .form-group {
             margin-bottom: 15px;
@@ -31,15 +43,19 @@
         label {
             display: block;
             margin-bottom: 5px;
+            font-weight: bold;
         }
         input[type="text"], input[type="date"], input[type="file"] {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
         .form-check-label {
             display: flex;
             align-items: center;
+            margin-bottom: 10px;
         }
         .form-check-input {
             margin-right: 10px;
@@ -47,24 +63,34 @@
         .btn-container {
             display: flex;
             gap: 10px;
+            margin-top: 20px;
         }
         .captcha {
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-bottom: 20px;
         }
         .captcha img {
             border: 1px solid #ccc;
+            border-radius: 5px;
         }
         .btn {
             padding: 10px 20px;
             background-color: green;
             color: white;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #218838;
         }
         .btn-secondary {
             background-color: #ccc;
+            color: black;
         }
         .note-container ul {
             list-style-type: none;
@@ -72,23 +98,24 @@
         }
         .note-container ul li {
             margin-bottom: 10px;
+            font-size: 14px;
         }
         .note-container img {
             display: block;
             margin: 10px 0;
+            width: 100px;
+            height: 125px;
         }
-
         .img-model {
-            width: 100%;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
         }
     </style>
 </head>
 <body>
     <div class="container"> 
         <div class="form-container">
-           <h1>Thông tin vé</h1>
+            <h1>Thông tin vé</h1>
             {{#if hasTickets}}
                 {{#each tickets}}
                 <div class="ticket-info">
@@ -106,21 +133,19 @@
             {{else}}
                 <div class="no-tickets">
                     <p><strong>Bạn chưa đăng ký vé tháng</strong></p>
-                    <button onclick="location.href='/ticket'">Đăng ký ngay</button>
+                    <button onclick="location.href='/ticket'" class="btn">Đăng ký ngay</button>
                 </div>
             {{/if}}
         </div>
         <div class="note-container">
             <h2>Thanh toán</h2>
             <ul>
-                <li><b>Số tài khoản</b>: 108872417335</li>
-                <li><b>Ngân hàng</b>: Viettinbank</li>
-                <li class="img-model"><b>Mã Qr</b>
-                    <div style="width: 100%; display: flex; justify-content: center ">
-                        <img src="ma-qr-code-la-gi-dung-de-lam-gi-cach-tao-ma-qr-nhanh-chong (1).jpg" alt="Ảnh mã qr" width="100" height="125">
-                    </div>
+                <li><b>Số tài khoản:</b> 108872417335</li>
+                <li><b>Ngân hàng:</b> Viettinbank</li>
+                <li class="img-model">
+                    <img src="ma-qr-code-la-gi-dung-de-lam-gi-cach-tao-ma-qr-nhanh-chong (1).jpg" alt="Ảnh mã QR">
                 </li>
-                <li><b>+ Khi ra lấy thẻ khách hàng phải mang theo bản đăng ký đã có dấu xác nhận của quản lý, và nộp lại cho nhân viên giao hàng</b></li>
+                <li><b>+ Khi ra lấy thẻ khách hàng phải mang theo bản đăng ký đã có dấu xác nhận của quản lý, và nộp lại cho nhân viên giao hàng.</b></li>
                 <li><b>+ Các mục có dấu (*) là bắt buộc phải nhập đầy đủ thông tin!</b></li>
                 <li><b>+ Nếu "Đơn đăng ký" không đúng các quy định trên hệ thống sẽ tự động hủy đơn!</b></li>
             </ul>
